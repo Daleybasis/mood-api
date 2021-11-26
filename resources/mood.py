@@ -2,7 +2,7 @@ from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from database.db import db
-from database.models import Mood, User
+from database.models import MoodSubmission, User
 import datetime
 
 class MoodApi(Resource):
@@ -11,7 +11,7 @@ class MoodApi(Resource):
         user = User.query.get(get_jwt_identity())
         moods = []
         previousDate = datetime.datetime(1, 1, 1)
-        streak = 1
+        streak = 0
         for mood in user.moods:
             moods.append({"user": mood.userID, "date": mood.date.strftime('%Y-%m-%d'), "mood": mood.mood})
 
@@ -26,20 +26,24 @@ class MoodApi(Resource):
 
     @jwt_required()
     def post(self):
-        body = request.get_json()
-        user = User.query.get(get_jwt_identity())
-        newMood = None
-        if "date" in body:
-            try:
+        try:
+            body = request.get_json()
+            user = User.query.get(get_jwt_identity())
+
+            newSubmission = None
+            if "date" in body:
                 newDate = datetime.datetime.strptime(body["date"], '%Y-%m-%d').date()
-                newMood = Mood(mood = body["mood"], date = newDate, author=user)
-            except ValueError:
-                return {'error': 'Incorrect date format. Should be YYYY-MM-DD'}, 422
-        else:
-            # Will default to current date
-            newMood = Mood(mood = body["mood"], author=user)
+                newSubmission = MoodSubmission(mood = body["mood"], date = newDate, author=user)
 
-        db.session.add(newMood)
-        db.session.commit()
+            else:
+                # Will default to current date
+                newSubmission = MoodSubmission(mood = body["mood"], author=user)
 
-        return 'Success', 200
+            db.session.add(newSubmission)
+            db.session.commit()
+
+            return 'Success', 200
+        except ValueError:
+            return {'error': 'Incorrect date format. Should be YYYY-MM-DD'}, 422
+        except KeyError:
+            return {"error":"Request must have a \"mood\" attribute"}, 422
