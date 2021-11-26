@@ -29,20 +29,21 @@ class MoodApi(Resource):
         try:
             body = request.get_json()
             user = User.query.get(get_jwt_identity())
+            newMood = body["mood"]
 
             newSubmission = None
             if "date" in body:
                 newDate = datetime.datetime.strptime(body["date"], '%Y-%m-%d').date()
-                newSubmission = MoodSubmission(mood = body["mood"], date = newDate, author=user)
+                newSubmission = MoodSubmission(mood = newMood, date = newDate, author=user)
 
             else:
                 # Will default to current date
-                newSubmission = MoodSubmission(mood = body["mood"], author=user)
+                newSubmission = MoodSubmission(mood = newMood, author=user)
 
             db.session.add(newSubmission)
             db.session.commit()
 
-            return 'Success', 200
+            return {'Submitted mood': newMood}, 200
         except ValueError:
             return {'error': 'Incorrect date format. Should be YYYY-MM-DD'}, 422
         except KeyError:
