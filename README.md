@@ -1,6 +1,8 @@
 # mood-api
+A simple proof-of-concept API that lets users log in and post their mood on any given date.  Their posted moods can then be retrieved, along with a streak counter for how many days in a row the user has submitted a mood.  This API was developed on Linux (WSL) using Python 3.8 and Flask.
+
 ## Installation
-This API was developed on Linux (WSL) using Python 3.8 and Flask.  After cloning the repo, `cd` into the mood-api directory.  If you haven't installed pipenv already, enter:
+After cloning the repo, `cd` into the mood-api directory.  If you haven't installed pipenv already, enter:
 
 `pip install --user pipenv`
 
@@ -38,6 +40,3 @@ Both `GET` and `POST` requests need a `bearer` authentication header with the to
 `{"mood": "happy", "date": "2021-11-29"}`
 
 The `"date"` attribute can be omitted.  If it is, the current date is stored.
-
-## If a Production Application
-The API would need a dedicated WSGI production server.  AWS, Azure, and Google all have offerings that support Flask.  A more intensive database solution than SQLite would also be needed to support more clients and data.  Another relational database based on SQL, like MySQL, would be the easiest to implement, since the API currently uses Flask-SQLAlchemy.  The extension largely doesn't care which SQL database is used with it.  The basic error handling would also have to be improved from the assessment version.
